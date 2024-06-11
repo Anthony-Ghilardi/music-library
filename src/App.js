@@ -1,25 +1,46 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useRef } from 'react'
+import { DataContext } from './context/DataContext'
+import { SearchContext } from './context/SearchContext'
+import Gallery from './components/Gallery'
+import SearchBar from './components/SearchBar'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+function App(){
+    let [message, setMessage] = useState('Search for Music!')
+    let [data, setData] = useState([])
+    let searchInput = useRef('')
+
+    const API_URL = 'https://itunes.apple.com/search?term='
+
+    const handleSearch = (e, term) => {
+      e.preventDefault()
+      const fetchData = async () => {
+        document.title = `${term} Music`
+        const response = await fetch(API_URL + term)
+        const resData = await response.json()
+        console.log(resData)
+        if (resData.results.length > 0) {
+          setData(resData.results)
+        } else {
+          setMessage('Not Found')
+        }
+    }
+    fetchData()
+  }
+
+    return (
+        <div className="App">
+            <SearchContext.Provider value={{
+              term: searchInput,
+              handleSearch: handleSearch
+            }} >
+                <SearchBar />
+            </SearchContext.Provider>         
+            {message}
+            <DataContext.Provider value={data} >
+                <Gallery />
+            </DataContext.Provider>
+        </div>
+    )
 }
 
-export default App;
+export default App
