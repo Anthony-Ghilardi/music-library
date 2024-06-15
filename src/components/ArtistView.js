@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 
 function ArtistView() {
+    const navigate = useNavigate()
     const { id } = useParams()
     const [ artistData, setArtistData ] = useState([])
-    const justAlbums = artistData.filter(entry => entry.collectionType === 'Album')
-
+    
     useEffect(() => {
         const API_URL = `http://localhost:4000/album/${id}`
         const fetchData = async () => {
@@ -16,18 +16,31 @@ function ArtistView() {
         fetchData()
     }, [id])
 
+    const justAlbums = artistData.filter(entry => entry.collectionType === 'Album')
+
     const renderAlbums = justAlbums.map((album, i) => {
         return (
-            <div key="justAlbums">
-                <p>{album.collectionName}</p>
+            <div key={album.collectionId}>
+                <Link to={`/album/${album.collectionId}`}>
+                    <p>{album.collectionName}</p>
+                </Link>
             </div>
         )
     })
+
+    const navButtons = () => {
+        return (
+            <div>
+                <button onClick={() => navigate(-1)}>Back</button>
+                <button onClick={() => navigate('/')}>Home</button>
+            </div>
+        )
+    }
     
     return (
         <div>
-            <h2>The id passed was: {id}</h2>
-            <p>Artist Data Goes Here!</p>
+            {artistData.length > 0 ? <h2>{artistData[0].artistName}</h2> : <h2>Loading...</h2>}
+            {navButtons()}
             {renderAlbums}
         </div>
     )
